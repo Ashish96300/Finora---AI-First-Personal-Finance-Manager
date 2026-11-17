@@ -1,7 +1,7 @@
 
 import type { MCPClientGuide } from "../components/help/types";
 
-const MCP_ENDPOINT = "https://finora-mcp-osle.onrender.com";
+const MCP_ENDPOINT = "https://finora-mcp-osle.onrender.com/mcp";
 
 export const helpGuides: MCPClientGuide[] = [
   {
