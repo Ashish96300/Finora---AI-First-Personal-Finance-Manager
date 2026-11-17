@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ResponsiveContainer,
   BarChart,
@@ -48,85 +48,99 @@ type ExpenseListResponse = {
   total_pages: number;
 };
 
+
 export default function ExpenseOverview() {
-  const [monthlySummary, setMonthlySummary] =
-    useState<MonthlySummary | null>(null);
-
-  const [categories, setCategories] = useState<CategorySummary[]>([]);
-  const [monthlyTrend, setMonthlyTrend] = useState<TrendItem[]>([]);
-  const [recentExpenses, setRecentExpenses] = useState<Expense[]>([]);
-  const [totalTransactions, setTotalTransactions] = useState(0);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
   const now = new Date();
 
   const currentMonth = `${now.getFullYear()}-${String(
     now.getMonth() + 1
   ).padStart(2, "0")}`;
 
-  useEffect(() => {
-    async function fetchDashboardData() {
-      try {
-        setLoading(true);
-        setError("");
+  // 1. Monthly summary
+  const monthlyQuery = useQuery<MonthlySummary>({
+    queryKey: ["dashboard", "monthly-summary", currentMonth],
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/summary/monthly?month=${currentMonth}`,
+        { cache: "no-store" }
+      );
 
-        const [
-          monthlyResponse,
-          categoriesResponse,
-          trendResponse,
-          expensesResponse,
-        ] = await Promise.all([
-          fetch(`/api/summary/monthly?month=${currentMonth}`, {
-            cache: "no-store",
-          }),
-          fetch(`/api/summary/categories?month=${currentMonth}`, {
-            cache: "no-store",
-          }),
-          fetch("/api/summary/trend?months=6", {
-            cache: "no-store",
-          }),
-          fetch("/api/expenses?limit=5", {
-            cache: "no-store",
-          }),
-        ]);
-
-        if (
-          !monthlyResponse.ok ||
-          !categoriesResponse.ok ||
-          !trendResponse.ok ||
-          !expensesResponse.ok
-        ) {
-          throw new Error("Could not load your financial data.");
-        }
-
-        const [monthlyData, categoryData, trendData, expensesData] =
-          await Promise.all([
-            monthlyResponse.json() as Promise<MonthlySummary>,
-            categoriesResponse.json() as Promise<CategorySummary[]>,
-            trendResponse.json() as Promise<TrendItem[]>,
-            expensesResponse.json() as Promise<ExpenseListResponse>,
-          ]);
-
-        setMonthlySummary(monthlyData);
-        setCategories(categoryData);
-        setMonthlyTrend(trendData);
-        setRecentExpenses(expensesData.items);
-        setTotalTransactions(expensesData.total);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong."
-        );
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("Could not load monthly summary.");
       }
-    }
 
-    fetchDashboardData();
-  }, [currentMonth]);
+      return response.json();
+    },
+  });
+
+  // 2. Category summary
+  const categoriesQuery = useQuery<CategorySummary[]>({
+    queryKey: ["dashboard", "category-summary", currentMonth],
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/summary/categories?month=${currentMonth}`,
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Could not load category summary.");
+      }
+
+      return response.json();
+    },
+  });
+
+  // 3. Six-month spending trend
+  const trendQuery = useQuery<TrendItem[]>({
+    queryKey: ["dashboard", "monthly-trend", 6],
+    queryFn: async () => {
+      const response = await fetch("/api/summary/trend?months=6", {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Could not load monthly trend.");
+      }
+
+      return response.json();
+    },
+  });
+
+  // 4. Recent expenses
+  const expensesQuery = useQuery<ExpenseListResponse>({
+    queryKey: ["dashboard", "recent-expenses", 5],
+    queryFn: async () => {
+      const response = await fetch("/api/expenses?limit=5", {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Could not load recent expenses.");
+      }
+
+      return response.json();
+    },
+  });
+
+  // Preserve the variables used by the existing dashboard UI
+  const monthlySummary = monthlyQuery.data ?? null;
+  const categories = categoriesQuery.data ?? [];
+  const monthlyTrend = trendQuery.data ?? [];
+  const recentExpenses = expensesQuery.data?.items ?? [];
+  const totalTransactions = expensesQuery.data?.total ?? 0;
+
+  // const loading =
+  //   monthlyQuery.isPending ||
+  //   categoriesQuery.isPending ||
+  //   trendQuery.isPending ||
+  //   expensesQuery.isPending;
+
+  // const error =
+  //   monthlyQuery.error?.message ||
+  //   categoriesQuery.error?.message ||
+  //   trendQuery.error?.message ||
+  //   expensesQuery.error?.message ||
+  //   "";
 
   const formatAmount = (amount: number) =>
     new Intl.NumberFormat("en-IN", {
@@ -172,21 +186,21 @@ export default function ExpenseOverview() {
     })
     .sort((a, b) => b.amount - a.amount);
 
-  if (loading) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 text-center text-sm text-slate-500">
-        Loading your financial data...
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 text-center text-sm text-slate-500">
+  //       Loading your financial data...
+  //     </div>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-red-200 bg-white p-5 text-sm text-red-600">
-        {error}
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="rounded-2xl border border-red-200 bg-white p-5 text-sm text-red-600">
+  //       {error}
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-w-0 space-y-5 sm:space-y-7">
@@ -197,12 +211,22 @@ export default function ExpenseOverview() {
             Monthly Expenses
           </p>
 
-          <h3 className="mt-3 break-words text-2xl font-bold text-slate-800 sm:text-3xl">
-            {formatAmount(monthlyTotal)}
-          </h3>
+          {monthlyQuery.isPending ? (
+            <p className="mt-3 text-sm text-slate-400">Loading...</p>
+          ) : monthlyQuery.isError ? (
+            <p className="mt-3 text-sm text-red-500">
+              Could not load monthly expenses.
+            </p>
+          ) : (
+            <h3 className="mt-3 break-words text-2xl font-bold text-slate-800 sm:text-3xl">
+              {formatAmount(monthlyTotal)}
+            </h3>
+          )}
 
           <p className="mt-3 text-xs text-slate-400">
-            {monthlyTransactionCount} transactions this month
+            {!monthlyQuery.isError && (
+              <>{monthlyTransactionCount} transactions this month</>
+            )}
           </p>
         </div>
 
@@ -211,12 +235,20 @@ export default function ExpenseOverview() {
             All Transactions
           </p>
 
-          <h3 className="mt-3 text-2xl font-bold text-slate-800 sm:text-3xl">
-            {totalTransactions}
-          </h3>
+                  {expensesQuery.isPending ? (
+            <p className="mt-3 text-sm text-slate-400">Loading...</p>
+          ) : expensesQuery.isError ? (
+            <p className="mt-3 text-sm text-red-500">
+              Could not load transaction count.
+            </p>
+          ) : (
+            <h3 className="mt-3 text-2xl font-bold text-slate-800 sm:text-3xl">
+              {totalTransactions}
+            </h3>
+          )}
 
           <p className="mt-3 text-xs text-slate-400">
-            Across all recorded expenses
+           {!expensesQuery.isError && "Across all recorded expenses"}
           </p>
         </div>
       </section>
@@ -233,58 +265,68 @@ export default function ExpenseOverview() {
           </p>
         </div>
 
-        <div className="h-60 w-full min-w-0 sm:h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{ top: 10, right: 5, left: -15, bottom: 5 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={false}
-                stroke="#E2E8F0"
-              />
+        
+        {trendQuery.isPending ? (
+          <div className="flex h-60 items-center justify-center sm:h-72">
+            <p className="text-sm text-slate-400">Loading spending trend...</p>
+          </div>
+        ) : trendQuery.isError ? (
+          <div className="flex h-60 items-center justify-center sm:h-72">
+            <p className="text-sm text-red-500">
+              Could not load spending trend.
+            </p>
+          </div>
+        ) : (
+          <div className="h-60 w-full min-w-0 sm:h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 10, right: 5, left: -15, bottom: 5 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#E2E8F0"
+                />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#64748B", fontSize: 11 }}
+                  interval={0}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#64748B", fontSize: 10 }}
+                  tickFormatter={(value: number) =>
+                    value >= 1000
+                      ? `₹${(value / 1000).toFixed(1)}k`
+                      : `₹${value}`
+                  }
+                  width={55}
+                />
+                <Tooltip
+                  formatter={(value) => formatAmount(Number(value ?? 0))}
+                  cursor={{ fill: "#EFF6FF" }}
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "1px solid #E2E8F0",
+                    fontSize: "12px",
+                  }}
+                />
+                <Bar
+                  dataKey="total"
+                  name="Expenses"
+                  fill="#2563EB"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={38}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: "#64748B", fontSize: 11 }}
-                interval={0}
-              />
-
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: "#64748B", fontSize: 10 }}
-                tickFormatter={(value: number) =>
-                  value >= 1000
-                    ? `₹${(value / 1000).toFixed(1)}k`
-                    : `₹${value}`
-                }
-                width={55}
-              />
-
-              <Tooltip
-                formatter={(value) => formatAmount(Number(value ?? 0))}
-                cursor={{ fill: "#EFF6FF" }}
-                contentStyle={{
-                  borderRadius: "12px",
-                  border: "1px solid #E2E8F0",
-                  fontSize: "12px",
-                }}
-              />
-
-              <Bar
-                dataKey="total"
-                name="Expenses"
-                fill="#2563EB"
-                radius={[6, 6, 0, 0]}
-                maxBarSize={38}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
       </section>
 
       {/* Spending by Category */}
@@ -299,7 +341,20 @@ export default function ExpenseOverview() {
           </p>
         </div>
 
-        {categoryBreakdown.length === 0 ? (
+
+        {categoriesQuery.isPending ? (
+          <div className="flex h-36 items-center justify-center sm:h-40">
+            <p className="text-sm text-slate-400">
+              Loading category breakdown...
+            </p>
+          </div>
+        ) : categoriesQuery.isError ? (
+          <div className="flex h-36 items-center justify-center sm:h-40">
+            <p className="text-sm text-red-500">
+              Could not load category breakdown.
+            </p>
+          </div>
+        ) : categoryBreakdown.length === 0 ? (
           <div className="flex h-36 items-center justify-center sm:h-40">
             <p className="text-center text-sm text-slate-400">
               No spending data available for this month.
@@ -357,7 +412,20 @@ export default function ExpenseOverview() {
           </span>
         </div>
 
-        {recentExpenses.length === 0 ? (
+        
+        {expensesQuery.isPending ? (
+          <div className="flex h-36 items-center justify-center sm:h-40">
+            <p className="text-sm text-slate-400">
+              Loading recent transactions...
+            </p>
+          </div>
+        ) : expensesQuery.isError ? (
+          <div className="flex h-36 items-center justify-center sm:h-40">
+            <p className="text-sm text-red-500">
+              Could not load recent transactions.
+            </p>
+          </div>
+        ) : recentExpenses.length === 0 ? (
           <div className="flex h-36 items-center justify-center sm:h-40">
             <p className="text-sm text-slate-400">
               No expenses recorded yet.
@@ -386,6 +454,7 @@ export default function ExpenseOverview() {
               </div>
             ))}
           </div>
+
         )}
       </section>
     </div>
