@@ -119,6 +119,9 @@ export default function TransactionContent() {
     await queryClient.invalidateQueries({
       queryKey: ["dashboard"],
     });
+    await queryClient.invalidateQueries({
+      queryKey: ["analytics"],
+  });
   } catch (err) {
     setListError(
       err instanceof Error
@@ -214,6 +217,9 @@ export default function TransactionContent() {
     await queryClient.invalidateQueries({
       queryKey: ["dashboard"],
     });
+    await queryClient.invalidateQueries({
+      queryKey: ["analytics"],
+  });
   } catch (err) {
     setFormError(
       err instanceof Error
@@ -271,9 +277,7 @@ export default function TransactionContent() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 md:flex">
       <main className="min-w-0 flex-1">
-
         {/* Header */}
         <header className="border-b border-slate-200 bg-white px-5 py-5 md:px-9">
           <h2 className="text-lg font-semibold text-slate-800">
@@ -653,6 +657,5 @@ export default function TransactionContent() {
           </section>
         </div>
       </main>
-    </div>
   );
 }
