@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   Bar,
@@ -65,78 +66,57 @@ export default function AnalyticsContent(){
         setSelectedMonth(month);
         }, []);
 
-  const [summary, setSummary] = useState<MonthlySummary | null>(null);
-  const [categories, setCategories] = useState<CategorySummary[]>([]);
-  const [trend, setTrend] = useState<TrendItem[]>([]);
+const fetchAnalytics = async <T,>(url: string): Promise<T> => {
+  const response = await fetch(url, { cache: "no-store" });
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [retryKey, setRetryKey] = useState(0);
-
-useEffect(() => {
-  if (!selectedMonth) return;
-
-  const controller = new AbortController();
-
-  async function loadAnalytics() {
-    try {
-
-      const [summaryResponse, categoryResponse, trendResponse] =
-        await Promise.all([
-          fetch(`/api/summary/monthly?month=${selectedMonth}`, {
-            cache: "no-store",
-            signal: controller.signal,
-          }),
-          fetch(`/api/summary/categories?month=${selectedMonth}`, {
-            cache: "no-store",
-            signal: controller.signal,
-          }),
-          fetch("/api/summary/trend?months=6", {
-            cache: "no-store",
-            signal: controller.signal,
-          }),
-        ]);
-
-      if (
-        !summaryResponse.ok ||
-        !categoryResponse.ok ||
-        !trendResponse.ok
-      ) {
-        throw new Error("Unable to load analytics.");
-      }
-
-      const [summaryData, categoryData, trendData] =
-        await Promise.all([
-          summaryResponse.json(),
-          categoryResponse.json(),
-          trendResponse.json(),
-        ]);
-
-      if (controller.signal.aborted) return;
-
-      setSummary(summaryData);
-      setCategories(categoryData);
-      setTrend(trendData);
-      setError("");
-    } catch (err) {
-      if (controller.signal.aborted) return;
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong."
-      );
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-    }
+  if (!response.ok) {
+    throw new Error("Unable to load analytics.");
   }
 
-  loadAnalytics();
+  return response.json() as Promise<T>;
+};
 
-  return () => controller.abort();
-}, [selectedMonth ,retryKey]);
+  const summaryQuery = useQuery<MonthlySummary>({
+    queryKey: ["analytics", "monthly-summary", selectedMonth],
+    queryFn: () =>
+      fetchAnalytics(`/api/summary/monthly?month=${selectedMonth}`),
+    enabled: Boolean(selectedMonth),
+  });
+
+  const categoriesQuery = useQuery<CategorySummary[]>({
+    queryKey: ["analytics", "category-summary", selectedMonth],
+    queryFn: () =>
+      fetchAnalytics(`/api/summary/categories?month=${selectedMonth}`),
+    enabled: Boolean(selectedMonth),
+  });
+
+  const trendQuery = useQuery<TrendItem[]>({
+    queryKey: ["analytics", "monthly-trend", 6],
+    queryFn: () => fetchAnalytics("/api/summary/trend?months=6"),
+    enabled: Boolean(selectedMonth),
+  });
+
+  const summary = summaryQuery.data ?? null;
+  const categories = categoriesQuery.data ?? [];
+  const trend = trendQuery.data ?? [];
+
+  const loading =
+    !selectedMonth ||
+    summaryQuery.isLoading ||
+    categoriesQuery.isLoading ||
+    trendQuery.isLoading;
+
+  const error =
+    summaryQuery.error ||
+    categoriesQuery.error ||
+    trendQuery.error;
+
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : error
+        ? "Something went wrong."
+        : "";
 
   const totalSpent = Number(summary?.total_spent ?? 0);
   const previousTotal = Number(summary?.previous_month_total ?? 0);
@@ -180,25 +160,23 @@ useEffect(() => {
             value={selectedMonth}
             max={currentMonth}
             disabled={!currentMonth}
-            onChange={(e) => {
-            setLoading(true);
-            setError("");
-            setSelectedMonth(e.target.value);
-            }}
+            onChange={(e) => setSelectedMonth(e.target.value)}
             className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-500"
             />
           </section>
 
           {error && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-              {error}
+              {errorMessage}
             <button
             type="button"
             onClick={() => {
-                setLoading(true);
-                setError("");
-                setRetryKey((previous) => previous + 1);
-                }}
+              void Promise.all([
+                summaryQuery.refetch(),
+                categoriesQuery.refetch(),
+                trendQuery.refetch(),
+              ]);
+            }}
             className="ml-3 font-semibold underline"
             >
             Retry
@@ -210,7 +188,7 @@ useEffect(() => {
             <div className="rounded-2xl bg-white py-20 text-center text-sm text-slate-400">
               Loading analytics...
             </div>
-          ) : !error ? (
+          ) : !errorMessage? (
             <>
               {/* Summary Cards */}
               <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
