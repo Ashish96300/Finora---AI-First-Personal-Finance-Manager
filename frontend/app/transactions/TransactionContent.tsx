@@ -1,7 +1,8 @@
 
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 type Expense = {
   id: number;
@@ -29,14 +30,39 @@ const initialForm = {
 };
 
 export default function TransactionContent() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-
+  
   const [page, setPage] = useState(1);
+
+  const queryClient = useQueryClient();
+
+  const transactionsQuery = useQuery<ExpenseListResponse>({
+    queryKey: ["transactions", "list", page, PAGE_SIZE],
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/expenses?page=${page}&limit=${PAGE_SIZE}`,
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load transactions.");
+      }
+
+      return response.json();
+    },
+  });
+
+  const expenses = transactionsQuery.data?.items ?? [];
+  const totalRecords = transactionsQuery.data?.total ?? 0;
+  const totalPages = transactionsQuery.data?.total_pages ?? 1;
+
+  const queryError =
+  transactionsQuery.error instanceof Error
+    ? transactionsQuery.error.message
+    : "";
+    
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const [loading, setLoading] = useState(true);
+  const loading = transactionsQuery.isPending;
   const [submitting, setSubmitting] = useState(false);
 
   const [listError, setListError] = useState("");
@@ -48,54 +74,8 @@ export default function TransactionContent() {
   const [form, setForm] = useState(initialForm);
 
   // Fetch the current page whenever page or refreshKey changes.
-  useEffect(() => {
-    const controller = new AbortController();
 
-    async function loadExpenses() {
-      try {
-        const response = await fetch(
-          `/api/expenses?page=${page}&limit=${PAGE_SIZE}`,
-          {
-            cache: "no-store",
-            signal: controller.signal,
-          }
-        );
 
-        if (!response.ok) {
-          throw new Error("Unable to load transactions.");
-        }
-
-        const data: ExpenseListResponse = await response.json();
-
-        if (!Array.isArray(data.items)) {
-          throw new Error("Invalid transaction response.");
-        }
-
-        setExpenses(data.items);
-        setTotalRecords(data.total);
-        setTotalPages(Math.max(1, data.total_pages));
-        setListError("");
-      } catch (err) {
-        if (controller.signal.aborted) return;
-
-        setListError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong."
-        );
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadExpenses();
-
-    return () => {
-      controller.abort();
-    };
-  }, [page, refreshKey]);
   async function handleDelete(expense: Expense) {
   const confirmed = window.confirm(
     `Are you sure you want to delete "${expense.description}"? This action cannot be undone.`
@@ -128,12 +108,16 @@ export default function TransactionContent() {
     // If this was the only record on the current page,
     // move to the previous page.
     if (expenses.length === 1 && page > 1) {
-      setLoading(true);
       setPage((previous) => previous - 1);
-    } else {
-      setLoading(true);
-      setRefreshKey((previous) => previous + 1);
     }
+
+    await queryClient.invalidateQueries({
+      queryKey: ["transactions", "list"],
+    });
+
+    await queryClient.invalidateQueries({
+      queryKey: ["dashboard"],
+    });
   } catch (err) {
     setListError(
       err instanceof Error
@@ -220,9 +204,15 @@ export default function TransactionContent() {
         : "Expense added successfully!"
     );
 
-    setLoading(true);
     setListError("");
-    setRefreshKey((previous) => previous + 1);
+
+    await queryClient.invalidateQueries({
+      queryKey: ["transactions", "list"],
+    });
+
+    await queryClient.invalidateQueries({
+      queryKey: ["dashboard"],
+    });
   } catch (err) {
     setFormError(
       err instanceof Error
@@ -243,15 +233,13 @@ export default function TransactionContent() {
       return;
     }
 
-    setLoading(true);
     setListError("");
     setPage(nextPage);
   }
 
   function retryLoading() {
-    setLoading(true);
     setListError("");
-    setRefreshKey((previous) => previous + 1);
+    transactionsQuery.refetch();
   }
 
   function formatAmount(amount: number) {
@@ -478,10 +466,10 @@ export default function TransactionContent() {
               <div className="py-16 text-center text-sm text-slate-400">
                 Loading transactions...
               </div>
-            ) : listError ? (
+            ) : listError || queryError ? (
               <div className="py-12 text-center">
                 <p className="text-sm text-red-600">
-                  {listError}
+                  {listError  || queryError }
                 </p>
 
                 <button
