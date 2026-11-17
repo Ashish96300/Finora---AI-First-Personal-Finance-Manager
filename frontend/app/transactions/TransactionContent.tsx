@@ -3,7 +3,7 @@
 
 import { FormEvent, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
+
 type Expense = {
   id: number;
   amount: string;
@@ -47,7 +47,13 @@ export default function TransactionContent() {
         throw new Error("Failed to load transactions.");
       }
 
-      return response.json();
+     const data: ExpenseListResponse = await response.json();
+
+      if (!Array.isArray(data.items)) {
+        throw new Error("Invalid transactions response.");
+      }
+
+      return data;
     },
   });
 
@@ -56,13 +62,11 @@ export default function TransactionContent() {
   const totalPages = transactionsQuery.data?.total_pages ?? 1;
 
   const queryError =
-  transactionsQuery.error instanceof Error
-    ? transactionsQuery.error.message
-    : "";
+    transactionsQuery.error instanceof Error
+      ? transactionsQuery.error.message
+      : "";
     
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const loading = transactionsQuery.isPending;
+  const loading = transactionsQuery.isPending && !transactionsQuery.data;
   const [submitting, setSubmitting] = useState(false);
 
   const [listError, setListError] = useState("");
@@ -72,9 +76,6 @@ export default function TransactionContent() {
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const [form, setForm] = useState(initialForm);
-
-  // Fetch the current page whenever page or refreshKey changes.
-
 
   async function handleDelete(expense: Expense) {
   const confirmed = window.confirm(
@@ -237,9 +238,9 @@ export default function TransactionContent() {
     setPage(nextPage);
   }
 
-  function retryLoading() {
+  async function retryLoading() {
     setListError("");
-    transactionsQuery.refetch();
+    await transactionsQuery.refetch();
   }
 
   function formatAmount(amount: number) {
@@ -469,7 +470,7 @@ export default function TransactionContent() {
             ) : listError || queryError ? (
               <div className="py-12 text-center">
                 <p className="text-sm text-red-600">
-                  {listError  || queryError }
+                  {listError || queryError }
                 </p>
 
                 <button
