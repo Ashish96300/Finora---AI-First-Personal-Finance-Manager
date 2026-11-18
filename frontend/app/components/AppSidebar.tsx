@@ -36,7 +36,7 @@ export default function AppSidebar({
         </div>
 
         <img 
-          src="background.png" 
+          src="/Background.png"
           alt="logo" 
           className="h-15 w-15 object-contain" 
         />
