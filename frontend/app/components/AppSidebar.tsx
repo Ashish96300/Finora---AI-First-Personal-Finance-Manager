@@ -22,18 +22,25 @@ export default function AppSidebar({
   return (
     <aside className="flex w-full flex-col bg-[#101B35] text-white md:min-h-screen md:w-64 md:shrink-0">
       {/* Brand */}
-      <div className="border-b border-white/10 px-6 py-5 md:px-7 md:py-6">
-        <Link href="/dashboard">
-          <h1 className="text-2xl font-bold tracking-wide">
-            Finora<span className="text-blue-400">.</span>
-          </h1>
-        </Link>
+    <div className="flex items-center justify-between gap-4 border-b border-white/10 px-6 py-5 md:px-7 md:py-6">
+        <div>
+          <Link href="/dashboard">
+            <h1 className="text-2xl font-bold tracking-wide">
+              Finora<span className="text-blue-400">.</span>
+            </h1>
+          </Link>
 
-        <p className="mt-1 text-xs text-slate-400">
-          Personal Finance Manager
-        </p>
+          <p className="mt-1 text-xs text-slate-400">
+            Personal Finance Manager
+          </p>
+        </div>
+
+        <img 
+          src="background.png" 
+          alt="logo" 
+          className="h-15 w-15 object-contain" 
+        />
       </div>
-
       {/* Navigation */}
       <nav className="flex gap-2 overflow-x-auto p-3 md:flex-1 md:flex-col md:p-4">
         {navigation.map((item) => {
