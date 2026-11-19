@@ -26,7 +26,7 @@ export default function AppSidebar({
         <div>
           <Link href="/dashboard">
             <h1 className="text-2xl font-bold tracking-wide">
-              Finora<span className="text-blue-400">.</span>
+              Oqita<span className="text-blue-400">.</span>
             </h1>
           </Link>
 

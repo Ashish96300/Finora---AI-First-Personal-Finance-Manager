@@ -1,15 +1,15 @@
-# Finora — AI-First Personal Finance Manager
+# Oqita — AI-First Personal Finance Manager
 
 **Manage your expenses. Understand your spending. Interact with your finances through AI.**
 
-Finora is an AI-first personal finance manager that combines a web-based finance dashboard with a Model Context Protocol (MCP) server.
+Oqita is an AI-first personal finance manager that combines a web-based finance dashboard with a Model Context Protocol (MCP) server.
 
 It allows users to manage and analyze their expenses through a traditional web application or interact with their financial data using compatible AI assistants.
 
-Unlike a conventional expense tracker with a chatbot added on top, Finora treats MCP as a first-class interface to its finance capabilities.
+Unlike a conventional expense tracker with a chatbot added on top, Oqita treats MCP as a first-class interface to its finance capabilities.
 
-🌐 **Live application:** https://finora-frontend-beta.vercel.app  
-🔌 **MCP endpoint:** https://finora-mcp-osle.onrender.com/mcp  
+🌐 **Live application:** https://oqita.vercel.app  
+🔌 **MCP endpoint:** https://oqita-mcp.onrender.com/mcp  
 
 ---
 
@@ -41,7 +41,7 @@ Unlike a conventional expense tracker with a chatbot added on top, Finora treats
 ![images](docs/images/analytics.png)
 
 ### AI-Native Finance Interaction
-Finora exposes its finance operations through an MCP server, allowing compatible AI clients to interact with authenticated financial data.
+Oqita exposes its finance operations through an MCP server, allowing compatible AI clients to interact with authenticated financial data.
 
 Users can use natural-language requests such as:
 
@@ -65,7 +65,7 @@ The AI client can use the available MCP tools to perform the corresponding opera
 
 ## 🧠 MCP Integration
 
-MCP is a core part of Finora's architecture.
+MCP is a core part of Oqita architecture.
 
 The MCP server exposes the following tools:
 
@@ -81,18 +81,18 @@ The MCP server exposes the following tools:
 
 ![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(3).png)
 
-### Connect to Finora
+### Connect to Oqita
 
 Use the following remote MCP endpoint in a compatible MCP client:
 
 ```text
-https://finora-mcp-osle.onrender.com/mcp
+https://oqita-mcp.onrender.com/mcp
 ```
 ![images](docs/images/connection.png)
 
-Finora uses WorkOS AuthKit for authentication. The client must support the authentication flow required by the remote MCP server.
+Oqita uses WorkOS AuthKit for authentication. The client must support the authentication flow required by the remote MCP server.
 
-Once authenticated and linked to a Finora account, the client can access the available finance tools.
+Once authenticated and linked to a Oqita account, the client can access the available finance tools.
 
 ![images](docs/images/auth.png)
 ![images](docs/images/access.png)
@@ -101,7 +101,7 @@ Once authenticated and linked to a Finora account, the client can access the ava
 
 ## 🏗️ Architecture
 
-Finora separates its web application, REST API, and MCP interface while using shared finance services and database models.
+Oqita separates its web application, REST API, and MCP interface while using shared finance services and database models.
 
 ```mermaid
 flowchart TD
@@ -128,7 +128,7 @@ flowchart TD
 
 - WorkOS AuthKit handles user authentication.
 - The backend verifies authenticated identities.
-- Authenticated WorkOS identities are mapped to local Finora users.
+- Authenticated WorkOS identities are mapped to local Oqita users.
 - The MCP server resolves the user from the verified authentication context rather than accepting a user ID supplied by an AI client.
 - Finance operations are scoped to the authenticated user.
 
@@ -181,7 +181,7 @@ Mcp-ExpenseTracker/
 
 ## 🔐 Security Considerations
 
-Finora includes several security mechanisms:
+Oqita includes several security mechanisms:
 
 - WorkOS-based authentication.
 - Server-side identity verification.
@@ -196,7 +196,7 @@ The application is designed so that an AI client cannot select another user's ac
 
 ## 🎯 Project Vision
 
-Finora explores a different approach to personal finance software: instead of making users adapt to a fixed set of screens and forms, it makes finance operations accessible through both a conventional interface and AI-driven interactions.
+Oqita explores a different approach to personal finance software: instead of making users adapt to a fixed set of screens and forms, it makes finance operations accessible through both a conventional interface and AI-driven interactions.
 
 The goal is to make personal finance management more accessible, conversational, and extensible through the MCP ecosystem.
 
@@ -212,4 +212,4 @@ GitHub: https://github.com/Ashish96300
 
 ---
 
-*Finora — Your finances, accessible through the interfaces you already use.*
+*Oqita — Your finances, accessible through the interfaces you already use.*

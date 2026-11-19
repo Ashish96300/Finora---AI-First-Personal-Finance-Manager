@@ -15,7 +15,7 @@ export default function RegisterPage() {
             F
           </div>
           <span className="text-xl font-semibold tracking-tight">
-            Finora
+            Oqita
           </span>
         </Link>
 

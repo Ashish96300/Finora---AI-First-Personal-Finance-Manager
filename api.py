@@ -72,7 +72,7 @@ if "*" in ALLOWED_HOSTS:
     )
 
 app = FastAPI(
-    title="Personal Finance API",
+    title="Oqita Api",
     docs_url=None if ENVIRONMENT == "production" else "/docs",
     redoc_url=None if ENVIRONMENT == "production" else "/redoc",
     openapi_url=None if ENVIRONMENT == "production" else "/openapi.json",

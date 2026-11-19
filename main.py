@@ -68,7 +68,7 @@ auth_provider = AuthKitProvider(
 )
 
 mcp = FastMCP(
-    name="Personal Finance Manager",
+    name="oqita",
     auth=auth_provider,
 )
 

@@ -24,7 +24,7 @@ export default function HelpGuide() {
         </h1>
 
         <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600">
-          Learn how to connect Finora to your favorite AI clients
+          Learn how to connect Oqita to your favorite AI clients
           using the Model Context Protocol (MCP).
         </p>
       </section>

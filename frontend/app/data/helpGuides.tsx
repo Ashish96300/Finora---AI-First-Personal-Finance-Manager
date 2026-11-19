@@ -1,13 +1,13 @@
 
 import type { MCPClientGuide } from "../components/help/types";
 
-const MCP_ENDPOINT = "https://finora-mcp-osle.onrender.com/mcp";
+const MCP_ENDPOINT = "https://oqita-mcp.onrender.com/mcp";
 
 export const helpGuides: MCPClientGuide[] = [
   {
     id: "claude",
     name: "Claude",
-    description: "Connect Finora to Claude using a remote MCP connection.",
+    description: "Connect Oqita to Claude using a remote MCP connection.",
     endpoint: MCP_ENDPOINT,
 
     steps: [
@@ -25,22 +25,22 @@ export const helpGuides: MCPClientGuide[] = [
         image: "/images/help/claude/step-2.png",
       },
       {
-        title: "Add Finora",
+        title: "Add Oqita",
         description:
-          "Enter Finora as the connector name and provide its MCP server endpoint.",
+          "Enter Oqita as the connector name and provide its MCP server endpoint.",
         image: "/images/help/claude/step-3.png",
       },
       {
         title: "Authorize the connection",
         description:
-          "Follow the authentication flow presented by Claude to authorize access to Finora.",
+          "Follow the authentication flow presented by Claude to authorize access to Oqita.",
         image: "/images/help/claude/step-4.png",
         tip: "Review the requested permissions before authorizing.",
       },
       {
-        title: "Start using Finora",
+        title: "Start using Oqita",
         description:
-          "Once connected, check that Finora's available tools appear and try an example prompt.",
+          "Once connected, check that Oqita's available tools appear and try an example prompt.",
         image: "/images/help/claude/step-5.png",
       },
     ],
@@ -56,7 +56,7 @@ export const helpGuides: MCPClientGuide[] = [
   {
     id: "chatgpt",
     name: "ChatGPT",
-    description: "Connect Finora to ChatGPT through its MCP app integration.",
+    description: "Connect Oqita to ChatGPT through its MCP app integration.",
     endpoint: MCP_ENDPOINT,
 
     steps: [
@@ -73,9 +73,9 @@ export const helpGuides: MCPClientGuide[] = [
         image: "/images/help/chatgpt/step-2.png",
       },
       {
-        title: "Configure Finora",
+        title: "Configure Oqita",
         description:
-          "Enter Finora as the app name and provide the MCP server endpoint.",
+          "Enter Oqita as the app name and provide the MCP server endpoint.",
         image: "/images/help/chatgpt/step-3.png",
       },
       {
@@ -85,7 +85,7 @@ export const helpGuides: MCPClientGuide[] = [
         image: "/images/help/chatgpt/step-4.png",
       },
       {
-        title: "Start using Finora",
+        title: "Start using Oqita",
         description:
           "Verify the connection and try one of the example prompts.",
         image: "/images/help/chatgpt/step-5.png",
@@ -101,7 +101,7 @@ export const helpGuides: MCPClientGuide[] = [
 
     notes: [
       "MCP app availability and capabilities depend on your ChatGPT plan and workspace settings.",
-      "Verify that the authentication flow is compatible with Finora before publishing this walkthrough.",
+      "Verify that the authentication flow is compatible with Oqita before publishing this walkthrough.",
     ],
   },
 ];

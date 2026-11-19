@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finora",
+  title: "Oqita",
   description: "Your Daily expense manager through Ai agents",
 };
 

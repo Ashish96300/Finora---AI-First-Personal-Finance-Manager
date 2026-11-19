@@ -31,7 +31,7 @@ export default function ClientGuide({ guide }: ClientGuideProps) {
       {/* Client introduction */}
       <section className="min-w-0">
         <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
-          Connect Finora to {guide.name}
+          Connect Oqita to {guide.name}
         </h2>
 
         <p className="mt-2 text-sm leading-7 text-slate-600">
@@ -49,7 +49,7 @@ export default function ClientGuide({ guide }: ClientGuideProps) {
       <section className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
         <div>
           <h3 className="font-semibold text-slate-900">
-            Finora MCP endpoint
+            Oqita MCP endpoint
           </h3>
 
           <p className="mt-1 text-sm text-slate-500">

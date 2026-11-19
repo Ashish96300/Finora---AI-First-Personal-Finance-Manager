@@ -52,7 +52,7 @@ async function HelpContent() {
               Help & Guides
             </h2>
             <p className="text-sm text-slate-500">
-              Get started with Finora in your AI client
+              Get started with Oqita in your AI client
             </p>
           </div>
 
