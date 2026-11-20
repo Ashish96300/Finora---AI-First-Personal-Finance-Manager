@@ -10,9 +10,9 @@ Unlike a conventional expense tracker with a chatbot added on top, Oqita treats 
 
 🌐 **Live application:** https://oqita.vercel.app  
 🔌 **MCP endpoint:** https://oqita-mcp.onrender.com/mcp  
+▶️ **youtube video:** https://youtu.be/BLz-evaZ7xg
 
 ---
-
 ## ✨ Features
 
 ### Finance Dashboard
@@ -54,14 +54,7 @@ Users can use natural-language requests such as:
 The AI client can use the available MCP tools to perform the corresponding operations.
 
 ![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(1).png)
-![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(3).png)
 ![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(2).png)
-![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(4).png)
-![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(5).png)
-![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(6).png)
-![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(7).png)
-![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(8).png)
----
 
 ## 🧠 MCP Integration
 
@@ -79,7 +72,6 @@ The MCP server exposes the following tools:
 | `get_category_summary` | Retrieve spending grouped by category |
 | `get_monthly_trend` | Retrieve historical monthly spending trends |
 
-![mcpScreenShots](docs/images/mcpScreenShots/mcpScreenShot(3).png)
 
 ### Connect to Oqita
 
