@@ -42,10 +42,8 @@ export const GET = handleAuth({
     }
 
     if (!response.ok) {
-      const body = await response.text();
       console.error(
-        `[Oqita auth] Account provisioning failed (HTTP ${response.status}):`,
-        body
+        `[Oqita auth] Account provisioning failed (HTTP ${response.status}).`
       );
 
       throw new ProvisioningError(`finance API returned ${response.status}`);

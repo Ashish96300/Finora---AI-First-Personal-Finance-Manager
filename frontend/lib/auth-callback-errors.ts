@@ -53,15 +53,44 @@ export function isStaleCallbackError(error: unknown): boolean {
  */
 export function describeError(error: unknown): string {
   if (error instanceof ProvisioningError) {
-    return `ProvisioningError: ${error.reason}`;
+    const safeReasons = new Set([
+      "finance API configuration is missing",
+      "finance API unreachable",
+      "finance API returned 400",
+      "finance API returned 401",
+      "finance API returned 403",
+      "finance API returned 404",
+      "finance API returned 429",
+      "finance API returned 500",
+      "finance API returned 502",
+      "finance API returned 503",
+      "finance API returned 504",
+    ]);
+
+    return safeReasons.has(error.reason)
+      ? `ProvisioningError: ${error.reason}`
+      : "ProvisioningError: unexpected provisioning failure";
   }
 
-  if (error instanceof Error) {
-    const code = (error as { code?: unknown }).code;
-    return typeof code === "string"
-      ? `${error.name} [${code}]: ${error.message}`
-      : `${error.name}: ${error.message}`;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "CallbackError" &&
+    "code" in error &&
+    typeof error.code === "string"
+  ) {
+    const safeCodes = new Set([
+      "missing_auth_params",
+      "missing_pkce_cookie",
+      "oauth_state_mismatch",
+      "missing_tokens",
+    ]);
+
+    return safeCodes.has(error.code)
+      ? `CallbackError [${error.code}]`
+      : "CallbackError: unknown callback failure";
   }
 
-  return "Unknown error";
+  return "Unexpected authentication failure";
 }
