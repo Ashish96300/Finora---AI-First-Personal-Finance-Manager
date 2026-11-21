@@ -87,7 +87,6 @@ Oqita uses WorkOS AuthKit for authentication. The client must support the authen
 Once authenticated and linked to a Oqita account, the client can access the available finance tools.
 
 ![images](docs/images/auth.png)
-![images](docs/images/access.png)
 
 ---
 
